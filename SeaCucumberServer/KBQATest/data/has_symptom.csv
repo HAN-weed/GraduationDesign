@@ -1,0 +1,3 @@
+disease,relation,symptom
+烂边病,has_symptom,幼体组织增生
+烂边病,has_symptom,胃壁增厚
