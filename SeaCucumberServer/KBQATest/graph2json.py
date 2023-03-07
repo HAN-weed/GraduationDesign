@@ -36,6 +36,42 @@ class Graph2json:
             }
             # 将单个节点信息存放在data数组中
             data.append(dict)
+        for n in self.graph.nodes.match("Alias"):
+            node_name = n['name']
+            # 构造字典，存储单个节点信息
+            dict = {
+                'name': node_name,
+                'category': 'Alias'
+            }
+            # 将单个节点信息存放在data数组中
+            data.append(dict)
+        for n in self.graph.nodes.match("Disease_Kind"):
+            node_name = n['name']
+            # 构造字典，存储单个节点信息
+            dict = {
+                'name': node_name,
+                'category': 'Disease_Kind'
+            }
+            # 将单个节点信息存放在data数组中
+            data.append(dict)
+        for n in self.graph.nodes.match("Drug"):
+            node_name = n['name']
+            # 构造字典，存储单个节点信息
+            dict = {
+                'name': node_name,
+                'category': 'Drug'
+            }
+            # 将单个节点信息存放在data数组中
+            data.append(dict)
+        for n in self.graph.nodes.match("Pathogen"):
+            node_name = n['name']
+            # 构造字典，存储单个节点信息
+            dict = {
+                'name': node_name,
+                'category': 'Pathogen'
+            }
+            # 将单个节点信息存放在data数组中
+            data.append(dict)
         rps = self.graph.relationships
         for r in rps:
             # 取出开始节点的name

@@ -15,46 +15,94 @@ class BuildKnowledgeGraph:
     def build_knowledge_graph_main(self):
         ## csv源数据读取
         diseaseData = pd.read_csv('./data/disease.csv', encoding='utf-8')
+        symptomData = pd.read_csv('./data/symptom.csv', encoding='utf-8')
         has_symptomData = pd.read_csv('./data/has_symptom.csv', encoding='utf-8')
-        # 获取所有列标签
-        columnLst_disease = diseaseData.columns.tolist()
-        columnLst_has_symptom = has_symptomData.columns.tolist()
-        print(columnLst_disease)
-        print(columnLst_has_symptom)
+        belongs_toData = pd.read_csv('./data/belongs_to.csv', encoding='utf-8')
+        alias_isData = pd.read_csv('./data/alias_is.csv', encoding='utf-8')
+        cause_byData = pd.read_csv('./data/cause_by.csv', encoding='utf-8')
+        recommend_drugData = pd.read_csv('./data/recommend_drug.csv', encoding='utf-8')
 
         '''将Disease数据导入neo4j'''
         # 获取数据数量
         num = len(diseaseData['name'])
         for i in range(num):
-            dict = {}
-            # 为每个疾病实体构建属性字典
-            for column in columnLst_disease:
-                dict[column] = diseaseData[column][i]
             # 根据数据内容拼接cypher
-            cypher = "MERGE (n: Disease {name:'%s',introduction:'%s',cause:'%s',pathogen:'%s',characteristic:'%s',easy_get:'%s',prevent:'%s',cure:'%s'})" \
+            cypher = "MERGE (n: Disease {name:'%s',introduction:'%s',cause:'%s',easy_get:'%s',prevent:'%s',cure:'%s'})" \
                      % (diseaseData['name'][i], diseaseData['introduction'][i], diseaseData['cause'][i],
-                        diseaseData['pathogen'][i], diseaseData['characteristic'][i], diseaseData['easy_get'][i],
-                        diseaseData['prevent'][i], diseaseData['cure'][i])
+                        diseaseData['easy_get'][i],diseaseData['prevent'][i], diseaseData['cure'][i])
+            print(cypher)
+            self.graph.run(cypher)
+
+        '''将Symptom数据导入neo4j'''
+        # 获取数据数量
+        num = len(symptomData['name'])
+        for i in range(num):
+            # 根据数据内容拼接cypher
+            cypher = "MERGE (n: Symptom {name:'%s',detail:'%s'})" \
+                     % (symptomData['name'][i], symptomData['detail'][i])
+            print(cypher)
             self.graph.run(cypher)
 
         '''将has_symptom关系数据导入neo4j'''
         # 获取数据数量
         num = len(has_symptomData['disease'])
         for i in range(num):
-            dict = {}
-            # 为每个疾病-症状关系构建属性字典
-            for column in columnLst_has_symptom:
-                dict[column] = has_symptomData[column][i]
             # 根据数据内容拼接cypher
-            cypher_createSymptom = "MERGE (n:Symptom {name:'%s'})"% has_symptomData['symptom'][i]
             cypher = "MATCH (n: Disease {name : '%s'}) , (m: Symptom {name : '%s'})  with n,m CREATE (n)-[:has_symptom]->(m)"%(has_symptomData['disease'][i],has_symptomData['symptom'][i])
-
-            print(cypher_createSymptom)
             print(cypher)
-            self.graph.run(cypher_createSymptom)
             self.graph.run(cypher)
 
+        '''将belongs_to关系数据导入neo4j'''
+        # 获取数据数量
+        num = len(belongs_toData['disease'])
+        for i in range(num):
+            # 根据数据内容拼接cypher
+            createcypher = "MERGE (n: Disease_Kind {name:'%s'})"%belongs_toData['disease_kind'][i]
+            cypher = "MATCH (n: Disease {name : '%s'}) , (m: Disease_Kind {name : '%s'})  with n,m CREATE (n)-[:belongs_to]->(m)" % (
+            belongs_toData['disease'][i], belongs_toData['disease_kind'][i])
+            print(createcypher)
+            print(cypher)
+            self.graph.run(createcypher)
+            self.graph.run(cypher)
 
+        '''将alias_is关系数据导入neo4j'''
+        # 获取数据数量
+        num = len(alias_isData['disease'])
+        for i in range(num):
+            # 根据数据内容拼接cypher
+            createcypher = "MERGE (n: Alias {name:'%s'})" % alias_isData['alias'][i]
+            cypher = "MATCH (n: Disease {name : '%s'}) , (m: Alias {name : '%s'})  with n,m CREATE (n)-[:alias_is]->(m)" % (
+                alias_isData['disease'][i], alias_isData['alias'][i])
+            print(createcypher)
+            print(cypher)
+            self.graph.run(createcypher)
+            self.graph.run(cypher)
+
+        '''将cause_by关系数据导入neo4j'''
+        # 获取数据数量
+        num = len(cause_byData['disease'])
+        for i in range(num):
+            # 根据数据内容拼接cypher
+            createcypher = "MERGE (n: Pathogen {name:'%s'})" % cause_byData['pathogen'][i]
+            cypher = "MATCH (n: Disease {name : '%s'}) , (m: Pathogen {name : '%s'})  with n,m CREATE (n)-[:cause_by]->(m)" % (
+                cause_byData['disease'][i], cause_byData['pathogen'][i])
+            print(createcypher)
+            print(cypher)
+            self.graph.run(createcypher)
+            self.graph.run(cypher)
+
+        '''将recommend_drug关系数据导入neo4j'''
+        # 获取数据数量
+        num = len(recommend_drugData['disease'])
+        for i in range(num):
+            # 根据数据内容拼接cypher
+            createcypher = "MERGE (n: Drug {name:'%s'})" % recommend_drugData['drug'][i]
+            cypher = "MATCH (n: Disease {name : '%s'}) , (m: Drug {name : '%s'})  with n,m CREATE (n)-[:recommend_drug]->(m)" % (
+                recommend_drugData['disease'][i], recommend_drugData['drug'][i])
+            print(createcypher)
+            print(cypher)
+            self.graph.run(createcypher)
+            self.graph.run(cypher)
 
 if __name__ == '__main__':
     handler = BuildKnowledgeGraph()
