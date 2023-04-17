@@ -21,7 +21,10 @@ const install = (Vue, vm) => {
 		dictData: (params = {}) => vm.$u.get(config.adminPath+'/sys/dictData/treeData', params),
 		//问答服务
 		kbqa: (params = {}) => vm.$u.get(config.adminPath+'/kbqa', params),
-		
+		//推荐文章服务
+		recommend: (params = {})=> vm.$u.get(config.adminPath+'/recommend/recommendArticle/getRecommend', params),
+		loginSave: (params = {})=> vm.$u.get(config.adminPath+'/knowledgegraph/tagUserID/loginSave', params),
+		updateTags: (params = {})=> vm.$u.get(config.adminPath+'/knowledgegraph/tagUserID/updateTags', params),
 		// 账号服务：验证码接口、忘记密码接口、注册账号接口等
 		validCode: (params = {}) => vm.$u.getText('/validCode', params),
 		getFpValidCode: (params = {}) => vm.$u.post('/account/getFpValidCode', params),

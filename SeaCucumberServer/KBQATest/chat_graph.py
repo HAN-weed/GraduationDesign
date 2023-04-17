@@ -16,16 +16,17 @@ class ChatGraph:
             return answer
         res_sql = self.parser.parser_main(res_classify)
         print(res_sql)
-        final_answer = self.searcher.search_main(res_sql)
+        imgs_answers =[]
+        final_answer,imgs_answers = self.searcher.search_main(res_sql)
         if not final_answer:
-            return answer
+            return answer,imgs_answers
         else:
-            return final_answer
+            return final_answer,imgs_answers
 
 if __name__ == '__main__':
     handler = ChatGraph()
     while 1:
         question = input('用户：')
-        answer = handler.chat(question)
+        answer,imgs_answers = handler.chat(question)
         print('回答：',answer)
         # print('cypher：',answer)

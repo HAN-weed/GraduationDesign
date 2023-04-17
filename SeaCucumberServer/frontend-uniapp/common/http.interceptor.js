@@ -53,7 +53,7 @@ const install = (Vue, vm) => {
 		
 		let data = res.data;
 		if (!(data)){
-			vm.$u.toast('未连接到服务器')
+			// vm.$u.toast('未连接到服务器')
 			return false;
 		}
 		

@@ -3,10 +3,9 @@
  */
 export default {
 	common: {
-		title: 'JeeSite',
+		title: '刺参病害诊治方法推荐',
 	},
 	nav: {
-
 		user: '用户',
 		recommend: '推荐',
 		answer : '问答'
@@ -26,9 +25,9 @@ export default {
 		title: '用户中心'
 	},
 	recommend: {
-		title: '疾病防治推荐'
+		title: '疾病相关文章推荐'
 	},
 	answer: {
-		title: '问答'
+		title: '问答系统'
 	},
 }

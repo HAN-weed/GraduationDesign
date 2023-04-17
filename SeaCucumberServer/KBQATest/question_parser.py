@@ -73,6 +73,12 @@ class QuestionPaser:
             elif question_type == 'symptom_desc':
                 sql = self.sql_transfer(question_type, entity_dict.get('symptom'))
 
+            if question_type == 'disease_img' :
+                disease = entity_dict.get('disease')[0]
+                list = ['烂边病','烂胃病','化板病','化皮病','霉菌病','后口虫病']
+                if disease in list:
+                    sql = self.sql_transfer(question_type, entity_dict.get('disease'))
+
             if sql:
                 sql_['sql'] = sql
 
@@ -81,17 +87,15 @@ class QuestionPaser:
         return sqls
 
     '''针对不同的问题，分开进行处理'''
-
     def sql_transfer(self, question_type, entities):
         if not entities:
             return []
-
         # 查询语句
         sql = []
 
         # 查询疾病有哪些症状
         if question_type == 'disease_symptom':
-            sql = ["MATCH (m:Disease)-[r:has_symptom]->(n:Symptom) where m.name = '{0}' return m.name, r.name, n.detail".format(i) for i in entities]
+            sql = ["MATCH (m:Disease)-[r:has_symptom]->(n:Symptom) where m.name = '{0}' return m.name, r.name, n.name".format(i) for i in entities]
 
         # 查询症状会导致哪些疾病
         elif question_type == 'symptom_disease':
@@ -130,7 +134,7 @@ class QuestionPaser:
                 for i in entities]
 
         elif question_type == 'disease_kind_disease':
-            sql = ["MATCH (m:Disease)-[r:belongs_to]->(n:Disease_Kind) where n.name = '{0}' return m.name, r.name, n.name".format(i)
+            sql = ["MATCH (m:Disease_Kind)-[r:contains]->(n:Disease) where m.name = '{0}' return m.name, r.name, n.name".format(i)
                 for i in entities]
 
         # 查询疾病的推荐药品
@@ -157,6 +161,10 @@ class QuestionPaser:
 
         elif question_type == 'symptom_desc':
             sql = ["MATCH (m:Symptom) where m.name = '{0}' return m.name, m.detail".format(i) for i in entities]
+
+        elif question_type == 'disease_img':
+            sql = ["MATCH (m:Disease)-[r:related_img]->(n:Img) where m.name = '{0}' return n.detail as detail,n.urlId as urlId".format(i)
+                for i in entities]
 
         return sql
 

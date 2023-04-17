@@ -3,6 +3,9 @@
  * Copyright (c) 2013-Now http://jeesite.com All rights reserved.
  */
 export default {
+	globalData:{
+		userId : "user1"
+	},
 	onLaunch() {
 		// 国际化，设置当前语言
 		if (this.vuex_locale){

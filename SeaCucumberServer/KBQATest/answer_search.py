@@ -7,6 +7,7 @@ class AnswerSearcher:
     '''执行cypher查询语句，并返回相应结果'''
     def search_main(self,sqls):
         final_answers = []
+        imgs_answers = []
         for sql_ in sqls:
             question_type = sql_['question_type']
             queries = sql_['sql']
@@ -14,24 +15,26 @@ class AnswerSearcher:
             for query in queries:
                 res = self.g.run(query).data()
                 answers+=res
-            final_answer = self.answer_prettify(question_type,answers)
+            print(answers)
+            final_answer,imgs_answers= self.answer_prettify(question_type,answers)
             if final_answer:
                 final_answers.append(final_answer)
-        return final_answers
+        return final_answers,imgs_answers
     '''根据对应的question_type，调用相应的回复模板'''
     def answer_prettify(self,question_type,answers):
         final_answer = []
-        if not  answers:
+        imgs_answers =[]
+        if not answers:
             return ''
         if question_type == 'disease_symptom':
-            desc = [i['n.detail'] for i in answers]
+            desc = [i['n.name'] for i in answers]
             subject = answers[0]['m.name']
             final_answer = '{0}的症状包括：{1}'.format(subject, '；'.join(list(set(desc))[:self.num_limit]))
 
         if question_type == 'symptom_disease':
             desc = [i['n.name'] for i in answers]
             subject = answers[0]['m.name']
-            final_answer = '{0}的症状包括：{1}'.format(subject, '；'.join(list(set(desc))[:self.num_limit]))
+            final_answer = '{1}可能是{0}的症状'.format(subject, '；'.join(list(set(desc))[:self.num_limit]))
         ## 疾病的原因
         if question_type == 'disease_cause':
             desc = [i['m.name'] for i in answers]
@@ -76,7 +79,7 @@ class AnswerSearcher:
         if question_type == 'disease_kind_disease':
             desc = [i['n.name'] for i in answers]
             subject = answers[0]['m.name']
-            final_answer = '{1}包括：{0}'.format(subject, '；'.join(list(set(desc))[:self.num_limit]))
+            final_answer = '{0}包括：{1}'.format(subject, '；'.join(list(set(desc))[:self.num_limit]))
 
         ## 疾病推荐药品
         if question_type == 'disease_drug':
@@ -94,6 +97,7 @@ class AnswerSearcher:
             desc = [i['n.name'] for i in answers]
             subject = answers[0]['m.name']
             final_answer = '{0}的致病病原为：{1}'.format(subject, '；'.join(list(set(desc))[:self.num_limit]))
+
         if question_type == 'pathogen_disease':
             desc = [i['n.name'] for i in answers]
             subject = answers[0]['m.name']
@@ -109,7 +113,15 @@ class AnswerSearcher:
             desc = [i['m.name'] for i in answers]
             subject = answers[0]['m.detail']
             final_answer = '{1}的简单介绍：{0}'.format(subject, '；'.join(list(set(desc))[:self.num_limit]))
-        return final_answer
+
+        print(answers)
+        if question_type == 'disease_img' and answers:
+            print('================')
+            print(answers)
+            print('================')
+            imgs_answers = answers
+
+        return final_answer,imgs_answers
 
 if __name__ == '__main__':
     searcher = AnswerSearcher()

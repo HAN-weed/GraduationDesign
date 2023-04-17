@@ -28,7 +28,7 @@ class QuestionClassifier:
 
 
         # 问句疑问句
-        self.disease_qwds = ['疾病']
+        self.disease_qwds = ['导致','疾病']
         self.alias_is_qwds = ['别名','别名是','又叫','又称为','又叫做','别称']
         self.symptom_qwds = ['症状', '表征', '现象', '症候', '表现']
         self.characteristic_qwds = ['特点','后果']
@@ -76,7 +76,7 @@ class QuestionClassifier:
             question_type = 'disease_symptom'
             question_types.append(question_type)
 
-        if self.check_words(self.symptom_qwds, question) and ('symptom' in types):
+        if self.check_words(self.disease_qwds, question) and ('symptom' in types):
             question_type = 'symptom_disease'
             question_types.append(question_type)
 
@@ -144,6 +144,12 @@ class QuestionClassifier:
         # 若没有查到相关的外部查询信息，就将该疾病的描述信息返回
         if question_types == [] and 'symptom' in types:
             question_types = ['symptom_desc']
+
+        # 若问题中包含疾病名，查询相关图片信息
+        if 'disease' in types:
+            question_type = 'disease_img'
+            question_types.append(question_type)
+
 
         # 将多个分类结果进行合并处理， 组装成一个字典
         data['question_types'] = question_types

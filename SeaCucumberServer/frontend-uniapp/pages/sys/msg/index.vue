@@ -14,7 +14,7 @@
 							<u-badge v-if="item.count && item.count > 0" :count="item.count"></u-badge>
 						</view>
 						<u-cell-group class="list" :border="false">
-							<u-cell-item :arrow="true" v-for="(child, index2) in item.childList" :key="child.code" @click="navTo('/pages/sys/msg/form')">
+							<u-cell-item :arrow="true" v-for="(child, index2) in item.childList" :key="child.code" @click="navTo(child)">
 								<text slot="title">{{child.name}}</text>
 								<text slot="label">发送者：{{child.createByName}} | 时间：{{child.createDate}}</text>
 							</u-cell-item>
@@ -31,128 +31,62 @@
  */
 export default {
 	data() {
+		
 		return {
+			userId : '',
 			keywords: '',
-			
-			list: [
-				{
-					code: 'a',
-					name: '重要消息',
-					icon: 'error-circle',
-					count: 3,
-					childList: [
-						{
-							code: 'a1',
-							name: '铁马冰河入梦来铁马冰河入梦来铁马冰河入梦来河入梦来铁马冰河入梦来河入梦来铁马冰河入梦来河入梦来',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						},
-						{
-							code: 'a2',
-							name: '发文',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						},
-						{
-							code: 'a3',
-							name: '查询',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						}
-					]
-				},
-				{
-					code: 'a-1',
-					name: '一般消息',
-					icon: 'chat',
-					childList: [
-						{
-							code: 'a1',
-							name: '铁马冰河入梦来铁马冰河入梦来铁马冰河入梦来河入梦来',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						},
-						{
-							code: 'a2',
-							name: '发文',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						},
-						{
-							code: 'a3',
-							name: '查询',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						}
-					]
-				},
-				{
-					code: 'a-2',
-					name: '系统通知',
-					icon: 'bell',
-					childList: [
-						{
-							code: 'a1',
-							name: '铁马冰河入梦来铁马冰河入梦来铁马冰河入梦来河入梦来',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						},
-						{
-							code: 'a2',
-							name: '发文',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						},
-						{
-							code: 'a3',
-							name: '查询',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						}
-					]
-				},
-				{
-					code: 'a-3',
-					name: '已读消息',
-					icon: 'volume',
-					childList: [
-						{
-							code: 'a1',
-							name: '铁马冰河入梦来铁马冰河入梦来铁马冰河入梦来河入梦来',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						},
-						{
-							code: 'a2',
-							name: '发文',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						},
-						{
-							code: 'a3',
-							name: '查询',
-							createByName: '管理员',
-							createDate: '2021-4-6 12:10'
-						}
-					]
-				},
-			],
-				
+			list: [],	
 		};
 	},
 	onLoad() {
-		
+		this.getRecommend();
+	},
+	onPullDownRefresh() {
+		this.getRecommend();
+		setTimeout(function () {
+			uni.stopPullDownRefresh();
+		}, 1000);
 	},
 	methods: {
-		navTo(url) {
+		navTo(child) {
+			//防止在url中出现%而产生错误
+			let itemData = JSON.stringify(child)
+			let newitem = itemData.replace(/%/g,'%25');
 			uni.navigateTo({
-				url: url
+				url: '/pages/sys/msg/form?item='+ encodeURIComponent(newitem),
 			});
 		},
 		search(value) {
 			this.$u.toast('搜索内容为：' + value)
+		},
+		//从后台获取推荐的文章数据
+		getRecommend(){
+			const that = this
+			var reslist = [];
+			that.userId = getApp().globalData.userId
+			this.$u.api.recommend({
+				userId : that.userId
+			}).then(res=>{
+				res.forEach((item,index)=>{
+					reslist[index] = {
+						code: res[index]['articleId'],
+						name: res[index]['tagName'],
+						icon: 'chat',
+						childList:[
+							{
+								code: res[index]['articleId'],
+								name: res[index]['articleName'],
+								content: res[index]['articleContent'],
+								createByName: '管理员',
+								createDate: '2021-4-6 12:10'
+							}
+						]
+					}
+				});
+				that.list = reslist
+				console.log(this.list)
+			})
 		}
-		
 	}
 };
 </script>

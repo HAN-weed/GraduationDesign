@@ -81,7 +81,17 @@
 		{
 			"path": "pages/sys/msg/index",
 			"style": {
-				"navigationBarTitleText": "消息提醒"
+				"navigationBarTitleText": "消息提醒",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none",
+					"pullToRefresh": {
+						"support": true,
+						"style": "circle",
+						"offset": "70px"
+					}
+				}
 			}
 		},
 		{

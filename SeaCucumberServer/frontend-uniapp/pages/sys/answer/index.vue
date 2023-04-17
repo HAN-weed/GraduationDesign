@@ -18,21 +18,6 @@
 					<view class="msg-text">
 						<view class="msg-text-content">
 							<text>您好，小助手将为您解答</text>
-							<!-- <view class="msg-introduce">您好，我将为您解答。</view>
-							<view class="msg-classify">
-								<view class="msg-classify-tit"><text class="msg-classify-name">分类1：</text>分类描述分类描述分类描述分类描述分类描述分类描述。</view>
-								<view class="msg-classify-click" @click="consultClick(1)">[此类问题请点我]</view>
-							</view>
-							<view class="msg-introduce">您好，请先选择问题分类，我将为您解答。</view>
-							<view class="msg-classify">
-								<view class="msg-classify-tit"><text class="msg-classify-name">分类2：</text>分类描述分类描述分类描述分类描述分类描述分类描述。</view>
-								<view class="msg-classify-click" @click="consultClick(2)">[此类问题请点我]</view>
-							</view>
-							<view class="msg-introduce">您好，请先选择问题分类，我将为您解答。</view>
-							<view class="msg-classify">
-								<view class="msg-classify-tit"><text class="msg-classify-name">分类3：</text>分类描述分类描述分类描述分类描述分类描述分类描述。</view>
-								<view class="msg-classify-click" @click="consultClick(3)">[此类问题请点我]</view>
-							</view> -->
 						</view>
 					</view>
 				</view>
@@ -42,6 +27,12 @@
 					<view class="msg-text">
 						<view class="msg-text-content">
 							<text>{{item.msg}}</text>
+						
+							<block v-for="(img,index) in item.imgs" :key="index">
+								<br/><br/>
+								<text>{{img.detail}}</text><br/>
+								<img v-if="img" :src="img.urlId" height="125rpx" width="175rpx">
+							</block>
 						</view>
 					</view>
 				</view>
@@ -76,6 +67,7 @@ export default {
 			}
 		},
 		onLoad(e) {
+		   console.log(getApp().globalData.userId)
 		   this.indexRegion = uni.getStorageSync('indexReg');
 		   console.log(this.indexRegion)
 		  }, 
@@ -130,12 +122,19 @@ export default {
 					});
 				})
 			},
-			sendMsg(obj) {
+			sendMsg(obj){
+				console.log(typeof(obj))
+				let imgs = obj.img_answer.sort((a,b)=>{
+					return a.urlId.substr(a.urlId.length-2,2)-b.urlId.substr(b.urlId.length-2,2)
+				})
+				console.log(imgs)
 				let anotherMsg = {
 					isme: false,
-					msg: obj
+					msg: obj.text_answer[0],
+					imgs:imgs
 				}
 				this.msgs.push(anotherMsg)
+				//this.msgs.push(anotherMsg) 解析图片并发送
 				this.jumpScroll()
 			},
 			sub1(val) {
@@ -164,11 +163,20 @@ export default {
 					this.msgs.push(msg)
 					this.conversion = !this.conversion
 					this.jumpScroll()
+					this.$u.api.updateTags({
+						userId : getApp().globalData.userId,
+						question : val
+					}).then(res=>{
+						
+					})
+					
 					this.$u.api.kbqa({
 						question : val
 					}).then(res=>{
-						this.sendMsg(res)
+						var e = JSON.parse('{'+ res+'}');
+						this.sendMsg(e)
 					})
+					
 				} else {
 					this.conversion = !this.conversion
 					this.jumpScroll()

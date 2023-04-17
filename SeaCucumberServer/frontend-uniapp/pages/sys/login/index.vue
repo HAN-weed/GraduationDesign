@@ -108,9 +108,16 @@ export default {
 				this.$u.toast(res.message || '未连接服务器');
 				if (res.result == 'true') {
 					setTimeout(() => {
-						uni.reLaunch({
-							url: '/pages/sys/answer/index'
-						});
+						this.$u.api.loginSave({
+							userId : this.username
+						}).then(res=>{
+							this.$set(getApp().globalData,'userId',this.username)
+							this.$forceUpdate()
+							console.log(getApp().globalData.userId)
+							uni.reLaunch({
+								url: '/pages/sys/answer/index'
+							});
+						})
 					}, 500);
 				}
 				if (res.isValidCodeLogin){
